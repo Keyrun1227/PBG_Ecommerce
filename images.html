@@ -49,11 +49,6 @@
         
         
       </style>
-      <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-
-      <![endif]-->
       <link rel="stylesheet" href="css/admin.css" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -74,8 +69,6 @@
                   <div class="sidebar-header">
                      <div class="logo_section" style="background-color:aliceblue; height:83px;width:80px">
                         <center>
-
-                      
                         <a href="index.html"><img class="logo_icon img-responsive" style="height:80px;width:80px" src="images/logo.png" alt="#" /></a>
                      </center>
                      </div>
@@ -153,7 +146,7 @@
                         <button id="searchButton" class="btn btn-primary mt-3">Search</button>
                     </div>
                 </div>
-            </div>
+               </div>
             
             <div class="container mt-5">
                 <div class="row">
@@ -165,201 +158,165 @@
                     </div>
                 </div>
             </div>
-               
-            <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
-
-            <script src="config.js"></script>
-            <script>
-
-        
-       // Initialize Firebase and set up storage reference
-const storage = firebase.storage();
-const storageRef = storage.ref();
-
-// Get HTML elements
-const searchButton = document.getElementById('searchButton');
-const searchIdInput = document.getElementById('searchId');
-const imageContainer = document.getElementById('imageContainer');
-
-// Function to display images for a given ID
-function displayImagesForId(id) {
-    // Clear previous images
-   
-    fixedImageContainer.innerHTML = '';
-
-    // Create a reference to the storage folder for the given ID
-    const idFolderRef = storageRef.child(id);
-
-    // List items (images) in the folder
-    idFolderRef.listAll().then(function (result) {
-        if (result.items.length === 0) {
-            // No images found for the specified ID
-            fixedImageContainer.innerHTML = 'No images found for this ID.';
-        } else {
-            result.items.forEach(function (itemRef, index) {
-                // Get the image URL from Firebase Storage
-                itemRef.getDownloadURL().then(function (url) {
-                    // Create a fixed-size image container
-                    const imageDiv = document.createElement('div');
-                    imageDiv.classList.add('fixed-image-container', 'col-md-4'); // Use Bootstrap's grid system to create 3 columns
-            
-                    // Create an image element
-                    const img = document.createElement('img');
-                    img.src = url; // Set the image URL
-                    img.alt = 'Image';
-            
-                    // Create a delete button
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.classList.add('btn', 'btn-danger', 'mt-2', 'delete-button');
-            
-                    // Append the image and delete button to the container
-                    imageDiv.appendChild(img);
-                    imageDiv.appendChild(deleteButton);
-            
-                    // Add a click event listener to the delete button
-                    deleteButton.addEventListener('click', function () {
-                        // Delete the image from Firebase Storage
-                        itemRef.delete().then(function () {
-                            // Refresh the images after deletion
-                            displayImagesForId(id);
-                        }).catch(function (error) {
-                            console.error('Error deleting image:', error);
-                        });
-                    });
-            
-                    // Append the image container to the fixedImageContainer
-                    fixedImageContainer.appendChild(imageDiv);
-                }).catch(function (error) {
-                    console.error('Error getting image URL:', error);
-                });
-            });
-            
-      // ... (previous code)
-// ... (rest of the code)
-
-        }
-    }).catch(function (error) {
-        console.error('Error listing images:', error);
-    });
-}
-
-
-// Event listener for the search button
-searchButton.addEventListener('click', function () {
-    const id = searchIdInput.value.trim();
-
-    if (id) {
-        displayImagesForId(id);
-    } else {
-        alert('Please enter an ID to search for images.');
-    }
-});
-
-
-// Function to check the number of images in the folder
-function checkNumberOfImages(id) {
-    const idFolderRef = storageRef.child(id);
-    return idFolderRef.listAll().then(function (result) {
-        return result.items.length;
-    });
-}
-
-// Event listener for form submission
-document.getElementById("imageForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const id = document.getElementById("id").value;
-    const images = document.getElementById("images").files;
-
-    // Check the number of images already in the folder
-    checkNumberOfImages(id).then(currentImagesCount => {
-        if (currentImagesCount >= 5) {
-            alert("You have already uploaded the maximum number of images for this ID.");
-            return;
-        }
-
-        const remainingImages = 5 - currentImagesCount;
-
-        if (images.length < 1 || images.length > remainingImages) {
-            alert(`You can upload up to ${remainingImages} more images.`);
-            return;
-        }
-
-        // Create a reference to the storage bucket with the ID as the folder name
-        const storageRef = firebase.storage().ref(id);
-
-        // Upload each selected image to the storage bucket
-        Array.from(images).forEach((image, index) => {
-            const imageRef = storageRef.child(`image_${index + 1}`);
-            imageRef.put(image).then((snapshot) => {
-                console.log(`Image ${index + 1} uploaded.`);
-            }).catch((error) => {
-                console.error(`Error uploading image ${index + 1}: ${error}`);
-            });
-        });
-
-        // Reset the form
-        document.getElementById("imageForm").reset();
-        alert("Uploaded Sucessfully.");
-    });
-});
-
-
-
-                document.addEventListener("DOMContentLoaded", function () {
-                    $('#datatable').on('click', '.view-button', function () {
-                      const productId = $(this).data('id');
-                      console.log(productId);
-                      window.location.href = 'product_details.html?id=' + productId;
-                  });
-              
-                    const logoutBtn = document.getElementById("logoutBtn");
-              
-                    logoutBtn.addEventListener("click", function () {
-                      // Clear cookies
-                      const cookies = document.cookie.split("; ");
-                      for (const cookie of cookies) {
-                        const [name, value] = cookie.split("=");
-                    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                      }
-              
-                      // Redirect to the login page
-                      window.location.href = "login.html"; // Replace with the actual login page URL
-                    });
-                  });
-
-                  
-            </script>
-         
-      </div>
-      <!-- jQuery -->
-
-   
+        </div>
+        <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+        <script src="config.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
       <script src="js/jquery.min.js"></script>
       <script src="js/popper.min.js"></script>
       <script src="js/bootstrap.min.js"></script>
-      <!-- wow animation -->
       <script src="js/animate.js"></script>
-      <!-- select country -->
       <script src="js/bootstrap-select.js"></script>
-      <!-- owl carousel -->
       <script src="js/owl.carousel.js"></script> 
-      <!-- chart js -->
       <script src="js/Chart.min.js"></script>
       <script src="js/Chart.bundle.min.js"></script>
       <script src="js/utils.js"></script>
       <script src="js/analyser.js"></script>
-      <!-- nice scrollbar -->
       <script src="js/perfect-scrollbar.min.js"></script>
       <script>
          var ps = new PerfectScrollbar('#sidebar');
       </script>
-      <!-- custom js -->
       <script src="js/custom.js"></script>
       <script src="js/chart_custom_style1.js"></script>
-   </body>
+      <script>        
+        const storage = firebase.storage();
+        const storageRef = storage.ref();
+        
+        // Get HTML elements
+        const searchButton = document.getElementById('searchButton');
+        const searchIdInput = document.getElementById('searchId');
+        const imageContainer = document.getElementById('imageContainer');
+ 
+        function displayImagesForId(id) {        
+            fixedImageContainer.innerHTML = '';
+        
+            // Create a reference to the storage folder for the given ID
+            const idFolderRef = storageRef.child(id);
+        
+            // List items (images) in the folder
+            idFolderRef.listAll().then(function (result) {
+                if (result.items.length === 0) {
+                    // No images found for the specified ID
+                    fixedImageContainer.innerHTML = 'No images found for this ID.';
+                } else {
+                    result.items.forEach(function (itemRef, index) {
+                        // Get the image URL from Firebase Storage
+                        itemRef.getDownloadURL().then(function (url) {
+                            // Create a fixed-size image container
+                            const imageDiv = document.createElement('div');
+                            imageDiv.classList.add('fixed-image-container', 'col-md-4'); // Use Bootstrap's grid system to create 3 columns
+                    
+                            // Create an image element
+                            const img = document.createElement('img');
+                            img.src = url; // Set the image URL
+                            img.alt = 'Image';
+                    
+                            // Create a delete button
+                            const deleteButton = document.createElement('button');
+                            deleteButton.textContent = 'Delete';
+                            deleteButton.classList.add('btn', 'btn-danger', 'mt-2', 'delete-button');
+                    
+                            // Append the image and delete button to the container
+                            imageDiv.appendChild(img);
+                            imageDiv.appendChild(deleteButton);
+                    
+                            // Add a click event listener to the delete button
+                            deleteButton.addEventListener('click', function () {
+                                // Delete the image from Firebase Storage
+                                itemRef.delete().then(function () {
+                                    // Refresh the images after deletion
+                                    displayImagesForId(id);
+                                }).catch(function (error) {
+                                    console.error('Error deleting image:', error);
+                                });
+                            });
+                    
+                            // Append the image container to the fixedImageContainer
+                            fixedImageContainer.appendChild(imageDiv);
+                        }).catch(function (error) {
+                            console.error('Error getting image URL:', error);
+                        });
+                    });
+                }
+            }).catch(function (error) {
+                console.error('Error listing images:', error);
+            });
+        } 
+        // Event listener for the search button
+        searchButton.addEventListener('click', function () {
+            const id = searchIdInput.value.trim();
+        
+            if (id) {
+                displayImagesForId(id);
+            } else {
+                alert('Please enter an ID to search for images.');
+            }
+        });
+ 
+ 
+        // Function to check the number of images in the folder
+        function checkNumberOfImages(id) {
+            const idFolderRef = storageRef.child(id);
+            return idFolderRef.listAll().then(function (result) {
+                return result.items.length;
+            });
+        }
+        
+        // Event listener for form submission
+        document.getElementById("imageForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+        
+            const id = document.getElementById("id").value;
+            const images = document.getElementById("images").files;
+        
+            // Check the number of images already in the folder
+            checkNumberOfImages(id).then(currentImagesCount => {
+                if (currentImagesCount >= 5) {
+                    alert("You have already uploaded the maximum number of images for this ID.");
+                    return;
+                }
+        
+                const remainingImages = 5 - currentImagesCount;
+        
+                if (images.length < 1 || images.length > remainingImages) {
+                    alert(`You can upload up to ${remainingImages} more images.`);
+                    return;
+                }
+        
+                // Create a reference to the storage bucket with the ID as the folder name
+                const storageRef = firebase.storage().ref(id);
+        
+                // Upload each selected image to the storage bucket
+                Array.from(images).forEach((image, index) => {
+                    const imageRef = storageRef.child(`image_${index + 1}`);
+                    imageRef.put(image).then((snapshot) => {
+                        console.log(`Image ${index + 1} uploaded.`);
+                    }).catch((error) => {
+                        console.error(`Error uploading image ${index + 1}: ${error}`);
+                    });
+                });
+        
+                // Reset the form
+                document.getElementById("imageForm").reset();
+                alert("Uploaded Sucessfully.");
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            $('#datatable').on('click', '.view-button', function () {
+            const productId = $(this).data('id');
+            console.log(productId);
+            window.location.href = 'product_details.html?id=' + productId;
+        });
+        });
+    </script>
+    <script>
+        const logoutBtn = document.getElementById("logoutBtn");
+            logoutBtn.addEventListener("click", function () {    
+            // Redirect to the login page
+            window.location.href = "login.html"; // Replace with the actual login page URL
+            });
+    </script>
+</body>
 </html>
